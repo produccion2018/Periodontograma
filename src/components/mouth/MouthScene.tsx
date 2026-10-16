@@ -7,10 +7,10 @@ import { buildArch, buildGumGeometry, buildPalateGeometry, buildToothGeometry, t
 export type ViewName = "front" | "top" | "bottom" | "side";
 
 const VIEWS: Record<ViewName, [number, number, number]> = {
-  front: [0, 4, 95],
-  top: [0, -85, 25],
-  bottom: [0, 85, 25],
-  side: [80, 8, 40],
+  front: [0, 6, 140],
+  top: [0, -130, 30],
+  bottom: [0, 130, 30],
+  side: [115, 10, 60],
 };
 
 function Tooth({ t, selected, hovered, onSelect, onHover }: {

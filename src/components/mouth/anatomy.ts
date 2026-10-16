@@ -84,7 +84,7 @@ export function buildToothGeometry(type: ToothType, jaw: "upper" | "lower", seed
     if (h < C) {
       // root: taper to apex
       const t = h / C;
-      y = -rl * (1 - t);
+      y = -rl * 0.55 * (1 - t);
       const taper = Math.pow(t, 0.55) * 0.62 + 0.04;
       rx = (w / 2) * taper * (isMolar ? 1.0 : 0.82);
       rz = (d / 2) * taper * 0.9;
@@ -152,7 +152,7 @@ export function buildToothGeometry(type: ToothType, jaw: "upper" | "lower", seed
         y += top * cusps;
       }
       // subtle surface perikymata / wear
-      const n = noise3(px * 3 + seed, y * 3, pz * 3) * 0.06;
+      const n = noise3(px * 3 + seed, y * 3, pz * 3) * 0.025;
       px += nx * n;
       pz += nz * n;
     }
@@ -309,14 +309,14 @@ export function buildGumGeometry(arch: Arch) {
     // distance in mm to nearest contact (papilla)
     let dc = 1e9;
     for (const c of contacts) dc = Math.min(dc, Math.abs(c - u) * L);
-    const papilla = 3.2 * gauss(dc, 1.25);
+    const papilla = 2.6 * gauss(dc, 1.7);
     const endFade = smooth(0, 0.035, u) * smooth(1, 0.965, u);
     const halfD = (t.d / 2) * 0.82 + 0.5;
     const cervY = t.position.y;
     // margin baseline sits slightly onto the crown (scallop low point)
     const marginH = 0.6 + papilla; // toward occlusal from cervical line
     const marginY = cervY - sign * marginH;
-    const depth = 15;
+    const depth = 10;
     const bw = halfD * (0.6 + 0.4 * endFade);
 
     // profile (n = outward offset, y = vertical), from buccal margin -> around -> lingual margin
@@ -335,7 +335,7 @@ export function buildGumGeometry(arch: Arch) {
       const [n, yy] = prof[k];
       // margin rolls slightly over the tooth near papillae
       const roll = k === 0 || k === P ? 0 : 0;
-      const nn = Math.sin((k / P) * Math.PI * 7 + u * 60) * 0.04;
+      const nn = 0;
       verts.push(p.x + out.x * (n + roll + nn), yy + noise3(p.x * 0.6, yy * 0.6, p.z * 0.6) * 0.12, p.z + out.z * (n + roll + nn));
       // color: attached gingiva coral-pink at margin, deeper mucosa red away
       const a = k / P;
