@@ -27,7 +27,7 @@ function describe(id: number) {
   const idx = (id % 10) - 1;
   const arcada = quad <= 2 ? "Arcada superior" : "Arcada inferior";
   const lado = quad === 1 || quad === 4 ? "derecha" : "izquierda";
-  return { name: TYPE_LABEL[ORDER[idx]], where: `${arcada} · ${lado}` };
+  return { name: TYPE_LABEL[ORDER[idx]!], where: `${arcada} · ${lado}` };
 }
 
 function Index() {

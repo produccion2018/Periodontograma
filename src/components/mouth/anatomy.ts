@@ -62,7 +62,7 @@ function noise3(x: number, y: number, z: number) {
 export function buildToothGeometry(type: ToothType, jaw: "upper" | "lower", seed: number) {
   const [w, d, ch, rl] = DIMS[jaw][type];
   const geo = new THREE.SphereGeometry(1, 72, 72);
-  const pos = geo.attributes.position;
+  const pos = geo.getAttribute("position") as THREE.BufferAttribute;
   const colors: number[] = [];
   const v = new THREE.Vector3();
   const isIncisor = type === "central" || type === "lateral";
@@ -143,7 +143,7 @@ export function buildToothGeometry(type: ToothType, jaw: "upper" | "lower", seed
             [0.45, -0.45, 1.1],
             [0.0, 0.7, type === "molar1" ? 0.5 : 0],
           ];
-          for (const [cx, cz, a] of pts) cusps += a * gauss(ox - cx, 0.42) * gauss(oz - cz, 0.42);
+          for (const [cx = 0, cz = 0, a = 0] of pts) cusps += a * gauss(ox - cx, 0.42) * gauss(oz - cz, 0.42);
           // central fissure
           cusps -= 0.5 * gauss(oz, 0.12) * (1 - Math.abs(ox));
         }
@@ -203,8 +203,8 @@ function archCurve(jaw: "upper" | "lower", targetLen: number) {
       : [
           [-22, -24], [-21.5, -12], [-19.2, -1.5], [-14.5, 6.5], [-7.5, 11.6], [0, 13],
         ];
-  const pts = [...base, ...base.slice(0, -1).reverse().map(([x, z]) => [-x, z])].map(
-    ([x, z]) => new THREE.Vector3(x, 0, z),
+  const pts = [...base, ...base.slice(0, -1).reverse().map(([x = 0, z = 0]) => [-x, z])].map(
+    ([x = 0, z = 0]) => new THREE.Vector3(x, 0, z),
   );
   let curve = new THREE.CatmullRomCurve3(pts, false, "centripetal");
   const s = targetLen / curve.getLength();
@@ -223,13 +223,13 @@ export function buildArch(jaw: "upper" | "lower"): Arch {
   const contacts: number[] = [];
   const sequence: { type: ToothType; side: "right" | "left"; idx: number }[] = [];
   // patient right is viewer's left (-x)
-  for (let i = ORDER.length - 1; i >= 0; i--) sequence.push({ type: ORDER[i], side: "right", idx: i });
-  for (let i = 0; i < ORDER.length; i++) sequence.push({ type: ORDER[i], side: "left", idx: i });
+  for (let i = ORDER.length - 1; i >= 0; i--) sequence.push({ type: ORDER[i]!, side: "right", idx: i });
+  for (let i = 0; i < ORDER.length; i++) sequence.push({ type: ORDER[i]!, side: "left", idx: i });
 
   let acc = margin;
   contacts.push(acc / L);
   sequence.forEach(({ type, side, idx }) => {
-    const wd = widths[idx];
+    const wd = widths[idx]!;
     const u = (acc + wd / 2) / L;
     acc += wd;
     contacts.push(acc / L);
@@ -285,7 +285,7 @@ export function buildGumGeometry(arch: Arch) {
   const idx: number[] = [];
 
   const toothAt = (u: number) => {
-    let best = teeth[0];
+    let best = teeth[0]!;
     let bd = 1e9;
     for (const t of teeth) {
       const dd = Math.abs(t.u - u);
@@ -332,7 +332,7 @@ export function buildGumGeometry(arch: Arch) {
       prof.push([n, yy]);
     }
     for (let k = 0; k <= P; k++) {
-      const [n, yy] = prof[k];
+      const [n, yy] = prof[k]!;
       // margin rolls slightly over the tooth near papillae
       const roll = k === 0 || k === P ? 0 : 0;
       const nn = 0;
@@ -374,7 +374,7 @@ export function buildPalateGeometry(arch: Arch) {
   const verts: number[] = [];
   const cols: number[] = [];
   const idx: number[] = [];
-  const baseY = teeth[0].position.y;
+  const baseY = teeth[0]!.position.y;
   for (let i = 0; i <= S; i++) {
     const u = 0.02 + (i / S) * 0.96;
     const p = curve.getPointAt(u);
